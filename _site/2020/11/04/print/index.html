@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="关于前端开发与设计 | 林娜，Web & Mobile Lover，Software Engineer| 这里是 @Ln林娜 的个人博客，与你一起发现更大的世界。">
+    <meta name="keywords"  content="林娜, Ln林娜, Ln, 林娜的博客, nanaLin Blog, 博客, 个人网站, 互联网, Web, JavaScript, 前端, 设计">
+    <meta name="theme-color" content="#000000">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="实践浏览器打印vue页面 - nanaLin Blog">
+    
+    <meta property="og:type" content="article">
+    <meta property="og:description" content="需求背景
+根据数据生成打印页，打印页包含二维码、表格、页码、图片等，其中数据是不固定的。
+流程
+调用js的打印方法，打印当前的vue页面，后关闭页面。
+遇到的问题
+由于浏览器对打印css和js的支持度不同，开发中遇到以下问题：
+
+  连接打印机
+  局部打印
+  js打印方法不生效
+  背景色不生效
+  生成多余空白页
+  横向打印
+  element表格在打印中样式错乱
+    
+    ...">
+    
+    <meta property="article:published_time" content="2020-11-04T00:00:00Z">
+    
+    
+    <meta property="article:author" content="Lin.na">
+    
+    
+    <meta property="article:tag" content="前端">
+    
+    <meta property="article:tag" content="打印">
+    
+    
+    <meta property="og:image" content="http://localhost:4000/img/avatar-nana.jpg">
+    <meta property="og:url" content="http://localhost:4000/2020/11/04/print/">
+    <meta property="og:site_name" content="nanaLin Blog">
+    
+    <title>实践浏览器打印vue页面 - nanaLin Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="http://localhost:4000/2020/11/04/print/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top invert">
+
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">nanaLin Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    
+                    
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    
+                    
+                    <li>
+                        <a href="/archive/">Archive</a>
+                    </li>
+                    
+                    
+                    
+                    
+                    
+                    <li>
+                        <a href="/frontend/">Frontend</a>
+                    </li>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/banner.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+
+
+
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/banner.jpg');
+        background: ;
+    }
+
+    
+</style>
+
+<header class="intro-header style-text" >
+
+    <div class="header-mask"></div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/archive/?tag=%E5%89%8D%E7%AB%AF" title="前端">前端</a>
+                        
+                        <a class="tag" href="/archive/?tag=%E6%89%93%E5%8D%B0" title="打印">打印</a>
+                        
+                    </div>
+                    <h1>实践浏览器打印vue页面</h1>
+                    
+                    <h2 class="subheading">调研方案与总结</h2>
+                    <span class="meta">Posted by Lin.na on November 4, 2020</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <!-- Multi-Lingual -->
+                
+
+				<h1 id="需求背景">需求背景</h1>
+<p>根据数据生成打印页，打印页包含二维码、表格、页码、图片等，其中数据是不固定的。</p>
+<h1 id="流程">流程</h1>
+<p>调用js的打印方法，打印当前的vue页面，后关闭页面。</p>
+<h1 id="遇到的问题">遇到的问题</h1>
+<p>由于浏览器对打印css和js的支持度不同，开发中遇到以下问题：</p>
+<ul>
+  <li>连接打印机</li>
+  <li>局部打印</li>
+  <li>js打印方法不生效</li>
+  <li>背景色不生效</li>
+  <li>生成多余空白页</li>
+  <li>横向打印</li>
+  <li>element表格在打印中样式错乱
+    <ul>
+      <li>表格超长，部分内容未被打印</li>
+      <li>表格边框粗细不均</li>
+      <li>表格边框颜色不统一</li>
+    </ul>
+  </li>
+  <li>如何根据字符串生成二维码</li>
+  <li>纸张边距和页眉页脚</li>
+  <li>页码如何自定义
+    <h1 id="解决方法">解决方法</h1>
+    <ol>
+      <li>连接打印机<br />
+远程连接，通过连接和打印机相同的wifi，不同型号的机器，可能连接方式不同，需要自行百度。<br />
+实际连接到打印机的wifi后，就已经建立和打印机的连接，然后就可以断开该网络，连接其他网络，在打印时，会自动连接打印机。</li>
+      <li>局部打印 <br />
+调研后的方案来看，可以用插件hiprint、prince，但实际使用下来，插件要用josn的方式写样式等问题，还是采用打开页面，打印当前页面后关闭页面的方式。</li>
+      <li>js打印方法<br />
+js执行打印的方法有以下两种：
+        <div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nb">window</span><span class="p">.</span><span class="nx">print</span><span class="p">();</span>  <span class="c1">// 可行打印当前页</span>
+<span class="nb">document</span><span class="p">.</span><span class="nx">execCommand</span><span class="p">(</span><span class="dl">'</span><span class="s1">print</span><span class="dl">'</span><span class="p">);</span> <span class="c1">// 唤起打印机，但没有生成预览页，放弃该方法但使用</span>
+</pre></td></tr></tbody></table></code></pre></div>        </div>
+      </li>
+      <li>背景色不生效<br />
+打印预览时，背景颜色不生效，可添加以下样式：
+        <div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="nt">body</span> <span class="p">{</span>
+  <span class="nl">-webkit-print-color-adjust</span><span class="p">:</span> <span class="n">exact</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nc">.table</span> <span class="p">{</span>
+  <span class="nl">background</span><span class="p">:</span> <span class="no">red</span><span class="cp">!important</span><span class="p">;</span>  <span class="err">//</span> <span class="err">一定要加上!important，背景色才会生效</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div>        </div>
+      </li>
+      <li>生成多余空白页
+打印时发现会生成多余的空白页面，主要是因为body中的高度设置为百分百，可以打印媒体查询解决
+        <div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="k">@media</span> <span class="n">print</span> <span class="p">{</span>
+  <span class="nt">body</span> <span class="p">{</span>
+   <span class="nl">height</span><span class="p">:</span> <span class="nb">auto</span><span class="p">;</span>  <span class="err">//</span> <span class="err">通用样式设置了高度为100%，会造成打印出不必要的空白页</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div>        </div>
+      </li>
+      <li>横向打印<br />
+设置打印@page的size属性，即可
+        <div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="k">@media</span> <span class="n">print</span> <span class="p">{</span>
+  <span class="k">@page</span> <span class="p">{</span>
+   <span class="nl">size</span><span class="p">:</span> <span class="n">A4</span> <span class="nb">landscape</span><span class="p">;</span>  <span class="err">//</span> <span class="err">纸张大小为A4，landscape方向为横向；默认方向portrait是纵向；除了这种方式，还可以用英寸等单位设置纸张大小。</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div>        </div>
+      </li>
+      <li>element表格在打印中样式错乱
+表格用的是element组件，会造成打印的一些问题，其实可以重写，但lazy。。。</li>
+    </ol>
+    <ol>
+      <li>表格超长，部分内容未被打印
+ 表格设置了最小宽度，在table在浏览器是会自动缩放的，可在打印时，是不会缩放的，且超出部分不打印，这个可通过设置宽度调整，说白了，就是凑宽度到合适的A4纸位置
+ ``` html
+ <!-- 设置合适的width --></li>
+    </ol>
+    <dm-table-column fixed="" type="index" label="序号" width="50"></dm-table-column>
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre> 2. 表格边框粗细不均
+ 粗细不均的问题，是因为element表格的表头和表身是两个独立的表格合并而成，所以需要设置边框合并，且要去掉第一个表格的底边框或第二个表格的顶边框。
+ ``` css
+  table {
+      border-collapse: collapse;  // 合并边框
+      border: 1px solid black;
+  }
+  .el-table__header {
+      border-bottom: none;  // 表头el-table__header的优先级较高，不想写那么多层级可以直接加上!important
+  }
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <ol>
+      <li>表格边框颜色不统一
+ 因为element中写了伪类元素，实际是伪类元素的背景色制造的边框，修改其背景色即可
+        <div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>  <span class="nc">.el-table__fixed-right</span><span class="nd">:before</span><span class="o">,</span> <span class="nc">.el-table__fixed</span><span class="nd">:before</span> <span class="p">{</span>
+  <span class="nl">background-color</span><span class="p">:</span> <span class="no">black</span><span class="p">;</span>
+  <span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div>        </div>
+      </li>
+      <li>出现空白行
+ 在print媒体查询中，给td\th设置padding会出现空白行，将该设置去掉即可。
+        <ol>
+          <li>如何根据字符串生成二维码    <br />
+插件<a href="http://hiprint.io">hiprint</a>，可以生成二维码，具体使用方法见下文。 <br />
+后端生成二维码图片，建议说服后端传图片，生成二维码是真滴麻烦。</li>
+          <li>纸张边距和页眉页脚
+浏览器打印时会自动生成页眉页脚，默认的纸张边距，可通过@page设置
+            <div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="k">@media</span> <span class="n">print</span> <span class="p">{</span>
+  <span class="k">@page</span> <span class="p">{</span>
+  <span class="nl">margin-top</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span> <span class="err">//</span> <span class="err">去除页眉</span>
+  <span class="nl">margin-bottom</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span> <span class="err">//</span> <span class="err">去除页脚</span>
+  <span class="nl">margin</span><span class="p">:</span> <span class="m">1cm</span><span class="p">;</span> <span class="err">//</span> <span class="err">纸张边距为1cm</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div>            </div>
+          </li>
+          <li>页码如何自定义
+理论上，可通过如下代码实现：
+            <div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="k">@media</span> <span class="n">print</span> <span class="p">{</span>
+  <span class="k">@page</span> <span class="p">{</span>
+   <span class="c">/* 页脚中间显示格式如 "第 1 页，共2页" 的页码 */</span>
+  <span class="k">@bottom-center</span> <span class="p">{</span>
+<span class="py">ontent</span><span class="p">:</span> <span class="s1">"第"</span> <span class="n">counter</span><span class="p">(</span><span class="n">page</span><span class="p">)</span> <span class="s1">"页，共"</span><span class="n">counter</span><span class="p">(</span><span class="n">pages</span><span class="p">)</span><span class="s1">"页"</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div>            </div>
+            <p>实际上，该样式在浏览器中的支持度不高，无法实现，所以，解决不了问题，就解决提问题的人叭。。。</p>
+            <h1 id="打印插件">打印插件</h1>
+            <h2 id="hiprint">hiprint</h2>
+            <p>在vue中引入hiprint，加载资源且要导入模块</p>
+            <h3 id="引入hiprint">引入hiprint</h3>
+            <h3 id="导入模块">导入模块</h3>
+            <h3 id="实际使用">实际使用</h3>
+            <h2 id="prince">prince</h2>
+            <p>将html转为pdf</p>
+            <h1 id="参考">参考</h1>
+          </li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+
+
+                <hr style="visibility: hidden;">
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2020/10/31/mac-test/" data-toggle="tooltip" data-placement="top" title="测试">
+                        Previous<br>
+                        <span>测试</span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <hr style="visibility: hidden;">
+
+                
+                <!-- disqus 评论框 start -->
+                <div class="comment">
+                    <div id="disqus_thread" class="disqus-thread"></div>
+                </div>
+                <!-- disqus 评论框 end -->
+                
+
+                
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+
+
+<section>
+    
+        <hr class="hidden-sm hidden-xs">
+    
+    <h5><a href="/archive/">FEATURED TAGS</a></h5>
+    <div class="tags">
+        
+        
+        
+        </a>
+        
+        
+                <a data-sort="0009" 
+                    href="/archive/?tag=CSS"
+                    title="CSS"
+                    rel="2">CSS</a>
+        
+                <a data-sort="0005" 
+                    href="/archive/?tag=%E5%89%8D%E7%AB%AF"
+                    title="前端"
+                    rel="6">前端</a>
+        
+                <a data-sort="0009" 
+                    href="/archive/?tag=jekyll"
+                    title="jekyll"
+                    rel="2">jekyll</a>
+        
+                <a data-sort="0009" 
+                    href="/archive/?tag=mac"
+                    title="mac"
+                    rel="2">mac
+    </div>
+</section>
+
+
+                <!-- Friends Blog -->
+                
+<hr>
+<h5>FRIENDS</h5>
+<ul class="list-inline">
+  
+  <li><a href="https://github.com/qianyuEric/qianyuEric.github.io">qianyuEric</a></li>
+  
+</ul>
+
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- add support for mathjax by voleking-->
+
+
+
+
+
+
+<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "hux";
+    var disqus_identifier = "/2020/11/04/print";
+    var disqus_url = "http://localhost:4000/2020/11/04/print/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus 公共JS代码 end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'hover',
+          placement: 'right',
+          // icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- SNS Link -->
+                
+
+
+<ul class="list-inline text-center">
+
+
+  
+  
+  
+  
+  
+  
+  <li>
+    <a target="_blank" href="https://github.com/nanaLinShero">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+</ul>
+
+                <p class="copyright text-muted">
+                    Copyright &copy; nanaLin Blog 2020
+                    <br>
+                    Powered by <a href="https://github.com/nanaLinShero/nanaLinShero.github.io.git">nanaLin Blog</a>
+                    <!-- <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=huxpro&repo=huxpro.github.io&type=star&count=true" >
+                    </iframe> -->
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<!-- Currently, only navbar scroll-down effect at desktop still depends on this -->
+<script src="/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+<!-- Service Worker -->
+
+<script src="/js/snackbar.js "></script>
+<script src="/js/sw-registration.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!--
+     Because of the native support for backtick-style fenced code blocks
+     right within the Markdown is landed in Github Pages,
+     From V1.6, There is no need for Highlight.js,
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+
+
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-49627206-1';
+    var _gaDomain = '';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+<!-- Side Catalog -->
+
+
+
+<!-- Multi-Lingual -->
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

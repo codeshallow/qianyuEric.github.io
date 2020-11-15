@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="关于前端开发与设计 | 林娜，Web & Mobile Lover，Software Engineer| 这里是 @Ln林娜 的个人博客，与你一起发现更大的世界。">
+    <meta name="keywords"  content="林娜, Ln林娜, Ln, 林娜的博客, nanaLin Blog, 博客, 个人网站, 互联网, Web, JavaScript, 前端, 设计">
+    <meta name="theme-color" content="#000000">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="nanaLin Blog">
+    
+    <meta property="og:type" content="website">
+    <meta property="og:description" content="我干了什么 究竟拿了时间换了什么">
+    
+    <meta property="og:image" content="http://localhost:4000/img/avatar-nana.jpg">
+    <meta property="og:url" content="http://localhost:4000/">
+    <meta property="og:site_name" content="nanaLin Blog">
+    
+    <title>nanaLin Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="http://localhost:4000/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">nanaLin Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    
+                    
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    
+                    
+                    <li>
+                        <a href="/archive/">Archive</a>
+                    </li>
+                    
+                    
+                    
+                    
+                    
+                    <li>
+                        <a href="/frontend/">Frontend</a>
+                    </li>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Page Header -->
+
+
+
+
+
+
+
+<header class="intro-header" style="background-image: url('/img/banner.jpg')">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        
+        <div class="site-heading">
+        
+          <h1>nanaLin Blog</h1>
+          <span class="subheading">我干了什么 究竟拿了时间换了什么</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+<!-- Main Content -->
+<div class="container">
+	<div class="row">
+        
+
+<!-- USE SIDEBAR -->
+    <!-- PostList Container -->
+    		<div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                postlist-container
+            ">
+    			
+<div class="post-preview">
+    <a href="/2020/11/04/print/">
+        <h2 class="post-title">
+            实践浏览器打印vue页面
+        </h2>
+        
+        <h3 class="post-subtitle">
+            调研方案与总结
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                需求背景
+根据数据生成打印页，打印页包含二维码、表格、页码、图片等，其中数据是不固定的。
+流程
+调用js的打印方法，打印当前的vue页面，后关闭页面。
+遇到的问题
+由于浏览器对打印css和js的支持度不同，开发中遇到以下问题：
+
+  连接打印机
+  局部打印
+  js打印方法不生效
+  背景色不生效
+  生成多余空白页
+  横向打印
+  element表格在打印中样式错乱
+    
+    ...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Lin.na on November 4, 2020
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2020/10/31/mac-test/">
+        <h2 class="post-title">
+            测试
+        </h2>
+        
+        <h3 class="post-subtitle">
+            安装流程和踩坑
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                一级标题
+内容简介
+
+1
+sudo 
+
+
+二级标题
+
+
+
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Lin.na on October 31, 2020
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2020/10/27/mac-install-jekyll/">
+        <h2 class="post-title">
+            macOS 安装jekyll
+        </h2>
+        
+        <h3 class="post-subtitle">
+            安装流程和踩坑
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                
+  “jekyll 是一款简单的博客系统，静态网站生成器。”
+
+
+概述
+jekyll是一款无需数据库、评论功能或频繁的版本更新—只需关注你的内容；
+只用 Markdown、Liquid、HTML &amp; CSS g就可以构建可部署的静态网站；
+原生支持自定义链接、分类、静态页、文章以及自定义布局。
+环境
+macOS：版本10.15.5
+安装Homebrew
+mac通过Homebrew，...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Lin.na on October 27, 2020
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2020/10/22/wap-auto/">
+        <h2 class="post-title">
+            Wap端自适应和在微信中调整字体大小的问题总结
+        </h2>
+        
+        <h3 class="post-subtitle">
+            主要是font-size的相关计算问题
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                
+  本文首发于我的掘金文章 Wap端自适应和在微信中调整字体大小的问题总结，转载请保留链接 ;)
+
+
+基本字体单位
+
+常用的基本字体单位有：px, em，rem, vw，vh
+
+px
+
+绝对单位，页面按精确像素展示
+
+em
+
+相对单位，基准点为父节点的字体大小。
+用例：文字的首行缩进2个字符
+
+1
+&lt;p sytle="text-index:2em"&gt;
+
+
+
+  注意：
+如果自身...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Lin.na on October 22, 2020
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2020/05/08/naming/">
+        <h2 class="post-title">
+            命名规范
+        </h2>
+        
+        <h3 class="post-subtitle">
+            团队整合要遵守的代码约定
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                命名规范
+由历史原因及个人习惯引起的命名不统一，导致不同成员在维护同一页面时，效率低下，迭代、维护成本极高，故统一命名标准。
+目录命名
+目录文件夹命名以见名知意为原则，区分不同功能，减少文件夹的深度嵌套，降低单个文件的代码量，因为冗长的代码可读性低。
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+build：打包配置文件夹
+con...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Lin.na on May 8, 2020
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2020/05/08/javascript/">
+        <h2 class="post-title">
+            JavaScript规范
+        </h2>
+        
+        <h3 class="post-subtitle">
+            TSA与BFC整合后要遵守的代码约定
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                JavaScript规范
+js规范采用ES6，由于兼容浏览器版本问题–谷歌最低v52，尽量避免使用过高版本的ES规范并且做好向下兼容，遵循最大限度的可复用，可读性强，便于维护的原则。
+语言规范
+变量声明-tsap
+const 和 let 都是块级作用域，var 是函数级作用域，变量声明必须加上关键字
+使用规范：
+
+  声明变量使用const和let，不推荐使用var，避免变量提升等问题，更规...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Lin.na on May 8, 2020
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2020/05/08/html/">
+        <h2 class="post-title">
+            HTML规范
+        </h2>
+        
+        <h3 class="post-subtitle">
+            TSA与BFC整合后要遵守的代码约定
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                HTML规范
+HTML遵循浏览器解析正确，可读性强，便于维护的原则
+代码规范
+元素及标签闭合
+HTML元素共有以下5种：
+
+  空元素：area、base、br、col、command、embed、hr、img、input、keygen、link、meta、param、source、track、wbr。
+  原始文本元素：script、style。
+  RCDATA元素：textarea、t...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Lin.na on May 8, 2020
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2020/05/08/css/">
+        <h2 class="post-title">
+            CSS规范
+        </h2>
+        
+        <h3 class="post-subtitle">
+            TSA与BFC整合后要遵守的代码约定
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                CSS规范
+CSS遵循可读性强，便于维护的原则
+代码规范
+样式表编码!
+样式文件必须写上 @charset 规则，并且一定要在样式文件的第一行首个字符位置开始写，编码名用 “UTF-8”。
+1
+@charset "UTF-8";
+
+代码风格
+代码格式化
+样式书写一般有两种：一种是紧凑格式 (Compact)， 一种是展开格式（Expanded），统一使用展开格式书写样式
+1
+2
+/* 紧凑 ...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Lin.na on May 8, 2020
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2020/04/26/summarize/">
+        <h2 class="post-title">
+            前端代码规范
+        </h2>
+        
+        <h3 class="post-subtitle">
+            TSA与BFC整合后要遵守的代码约定
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                概述
+关于
+前端代码规范是基于W3C等官方文档，并结合团队日常业务需求以及团队在日常开发过程中总结提炼出的经验而制定。
+旨在增强团队开发协作、提高代码质量和打造开发基石的编码规范。
+TSA前端代码现状
+TSA前端代码，引用深蓝平台1.3.5版本，采用的框架是Angularjs，UI采用semantic(semantic基于Jquery)+深蓝平台(深蓝平台是对semantic的二次封装和通用...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Lin.na on April 26, 2020
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2019/11/27/vampire-number/">
+        <h2 class="post-title">
+            三重循环实现四位的吸血鬼数
+        </h2>
+        
+        <h3 class="post-subtitle">
+            对三重循环的理解与掌握
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                
+  本文首发于我的博客园博客 三重循环实现四位的吸血鬼数，转载请保留链接 ;)
+
+
+什么是吸血鬼数？
+吸血鬼数字是指位数为偶数的数字，可以由一对数字相乘而得，而这对数字各包含乘积的一半位数的数字，其中从最初的数字中抽取的数字可以任意排序。以两个0结尾的数字是不允许的。
+例如下列的数字都是”吸血鬼”数字：
+
+1
+2
+3
+1260=21*60
+1827=21*87
+2187=27*81
+
+
+实...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Lin.na on November 27, 2019
+    </p>
+</div>
+<hr>
+
+
+<!-- Pager -->
+
+<ul class="pager">
+    
+    
+    <li class="next">
+        <a href="/page2">Older Posts &rarr;</a>
+    </li>
+    
+</ul>
+
+
+    		</div>
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-3 col-lg-offset-0
+                col-md-3 col-md-offset-0
+                col-sm-12
+                col-xs-12
+                sidebar-container
+            ">
+                <!-- Featured Tags -->
+                
+
+
+<section>
+    
+    <h5><a href="/archive/">FEATURED TAGS</a></h5>
+    <div class="tags">
+        
+        
+        
+        </a>
+        
+        
+                <a data-sort="0009" 
+                    href="/archive/?tag=CSS"
+                    title="CSS"
+                    rel="2">CSS</a>
+        
+                <a data-sort="0005" 
+                    href="/archive/?tag=%E5%89%8D%E7%AB%AF"
+                    title="前端"
+                    rel="6">前端</a>
+        
+                <a data-sort="0009" 
+                    href="/archive/?tag=jekyll"
+                    title="jekyll"
+                    rel="2">jekyll</a>
+        
+                <a data-sort="0009" 
+                    href="/archive/?tag=mac"
+                    title="mac"
+                    rel="2">mac
+    </div>
+</section>
+
+
+                <!-- Short About -->
+                <section class="visible-md visible-lg">
+  <hr>
+  <h5><a href="/about/">ABOUT ME</a></h5>
+  <div class="short-about">
+    
+    <img src="/img/avatar-nana.jpg" />
+    
+    
+    <p>Doing the things I want to do</p>
+    
+    <!-- SNS Link -->
+    
+
+
+<ul class="list-inline">
+
+
+  
+  
+  
+  
+  
+  
+  <li>
+    <a target="_blank" href="https://github.com/nanaLinShero">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+</ul>
+  </div>
+</section>
+
+                <!-- Friends Blog -->
+                
+<hr>
+<h5>FRIENDS</h5>
+<ul class="list-inline">
+  
+  <li><a href="https://github.com/qianyuEric/qianyuEric.github.io">qianyuEric</a></li>
+  
+</ul>
+
+    		</div>
+        
+	</div>
+</div>
+
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- SNS Link -->
+                
+
+
+<ul class="list-inline text-center">
+
+
+  
+  
+  
+  
+  
+  
+  <li>
+    <a target="_blank" href="https://github.com/nanaLinShero">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+</ul>
+
+                <p class="copyright text-muted">
+                    Copyright &copy; nanaLin Blog 2020
+                    <br>
+                    Powered by <a href="https://github.com/nanaLinShero/nanaLinShero.github.io.git">nanaLin Blog</a>
+                    <!-- <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=huxpro&repo=huxpro.github.io&type=star&count=true" >
+                    </iframe> -->
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<!-- Currently, only navbar scroll-down effect at desktop still depends on this -->
+<script src="/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+<!-- Service Worker -->
+
+<script src="/js/snackbar.js "></script>
+<script src="/js/sw-registration.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!--
+     Because of the native support for backtick-style fenced code blocks
+     right within the Markdown is landed in Github Pages,
+     From V1.6, There is no need for Highlight.js,
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+
+
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-49627206-1';
+    var _gaDomain = '';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+<!-- Side Catalog -->
+
+
+
+<!-- Multi-Lingual -->
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

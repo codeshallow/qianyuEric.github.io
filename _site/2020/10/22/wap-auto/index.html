@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="关于前端开发与设计 | 林娜，Web & Mobile Lover，Software Engineer| 这里是 @Ln林娜 的个人博客，与你一起发现更大的世界。">
+    <meta name="keywords"  content="林娜, Ln林娜, Ln, 林娜的博客, nanaLin Blog, 博客, 个人网站, 互联网, Web, JavaScript, 前端, 设计">
+    <meta name="theme-color" content="#000000">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Wap端自适应和在微信中调整字体大小的问题总结 - nanaLin Blog">
+    
+    <meta property="og:type" content="article">
+    <meta property="og:description" content="
+  本文首发于我的掘金文章 Wap端自适应和在微信中调整字体大小的问题总结，转载请保留链接 ;)
+
+">
+    
+    <meta property="article:published_time" content="2020-10-22T00:00:00Z">
+    
+    
+    <meta property="article:author" content="Lin.na">
+    
+    
+    <meta property="article:tag" content="CSS">
+    
+    <meta property="article:tag" content="微信">
+    
+    
+    <meta property="og:image" content="http://localhost:4000/img/avatar-nana.jpg">
+    <meta property="og:url" content="http://localhost:4000/2020/10/22/wap-auto/">
+    <meta property="og:site_name" content="nanaLin Blog">
+    
+    <title>Wap端自适应和在微信中调整字体大小的问题总结 - nanaLin Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="http://localhost:4000/2020/10/22/wap-auto/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top invert">
+
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">nanaLin Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    
+                    
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    
+                    
+                    <li>
+                        <a href="/archive/">Archive</a>
+                    </li>
+                    
+                    
+                    
+                    
+                    
+                    <li>
+                        <a href="/frontend/">Frontend</a>
+                    </li>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/banner.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+
+
+
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/banner.jpg');
+        background: ;
+    }
+
+    
+</style>
+
+<header class="intro-header style-text" >
+
+    <div class="header-mask"></div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/archive/?tag=CSS" title="CSS">CSS</a>
+                        
+                        <a class="tag" href="/archive/?tag=%E5%BE%AE%E4%BF%A1" title="微信">微信</a>
+                        
+                    </div>
+                    <h1>Wap端自适应和在微信中调整字体大小的问题总结</h1>
+                    
+                    <h2 class="subheading">主要是font-size的相关计算问题</h2>
+                    <span class="meta">Posted by Lin.na on October 22, 2020</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <!-- Multi-Lingual -->
+                
+
+				<blockquote>
+  <p>本文首发于我的掘金文章 <a href="https://juejin.im/post/6886343456839761933">Wap端自适应和在微信中调整字体大小的问题总结</a>，转载请保留链接 ;)</p>
+</blockquote>
+
+<h2 id="基本字体单位">基本字体单位</h2>
+
+<p>常用的基本字体单位有：px, em，rem, vw，vh</p>
+
+<h3 id="px">px</h3>
+
+<p>绝对单位，页面按精确像素展示</p>
+
+<h3 id="em">em</h3>
+
+<p>相对单位，基准点为父节点的字体大小。
+<em>用例：文字的首行缩进2个字符</em></p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="nt">&lt;p</span> <span class="na">sytle=</span><span class="s">"text-index:2em"</span><span class="nt">&gt;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<blockquote>
+  <p>注意：<br />
+如果自身定义了font-size按照自身来计算<br />
+浏览器默认字体大小是16px</p>
+</blockquote>
+
+<h3 id="rem">rem</h3>
+
+<p>相对单位，相对根节点html的字体大小来计算，css3新加属性。</p>
+<ul>
+  <li>方案1：简单常用版本
+以页面基准1080px为例;html font-size值的计算：</li>
+</ul>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">doc</span><span class="p">,</span> <span class="nx">win</span><span class="p">)</span> <span class="p">{</span>
+<span class="kd">var</span> <span class="nx">htmlFont</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+<span class="kd">var</span> <span class="nx">docEl</span> <span class="o">=</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">documentElement</span><span class="p">,</span>
+<span class="nx">view</span> <span class="o">=</span> <span class="nx">docEl</span><span class="p">.</span><span class="nx">clientWidth</span><span class="p">,</span>
+<span class="nx">height</span> <span class="o">=</span> <span class="nx">docEl</span><span class="p">.</span><span class="nx">clientHeight</span><span class="p">,</span>
+<span class="nx">font</span><span class="p">;</span>
+<span class="nx">docEl</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">minHeight</span> <span class="o">=</span> <span class="nx">height</span> <span class="o">+</span> <span class="dl">"</span><span class="s2">px</span><span class="dl">"</span><span class="p">;</span>
+<span class="nx">font</span> <span class="o">=</span> <span class="nx">view</span> <span class="o">/</span> <span class="mf">10.8</span><span class="p">;</span>
+<span class="nx">view</span> <span class="o">&gt;</span> <span class="mi">1080</span> <span class="p">?</span> <span class="nx">docEl</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">fontSize</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">+</span> <span class="dl">"</span><span class="s2">px</span><span class="dl">"</span> <span class="p">:</span> <span class="nx">docEl</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">fontSize</span> <span class="o">=</span> <span class="nx">font</span> <span class="o">+</span> <span class="dl">"</span><span class="s2">px</span><span class="dl">"</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="nx">htmlFont</span><span class="p">();</span>
+<span class="nx">win</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="dl">"</span><span class="s2">resize</span><span class="dl">"</span><span class="p">,</span> <span class="nx">htmlFont</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
+<span class="p">})(</span><span class="nb">document</span><span class="p">,</span> <span class="nb">window</span><span class="p">);</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<ul>
+  <li>方案2：高清方案</li>
+</ul>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span><span class="kd">function</span> <span class="nx">t</span><span class="p">(</span><span class="nx">a</span><span class="p">){</span><span class="k">if</span><span class="p">(</span><span class="nx">i</span><span class="p">[</span><span class="nx">a</span><span class="p">])</span><span class="k">return</span> <span class="nx">i</span><span class="p">[</span><span class="nx">a</span><span class="p">].</span><span class="nx">exports</span><span class="p">;</span><span class="kd">var</span> <span class="nx">n</span><span class="o">=</span><span class="nx">i</span><span class="p">[</span><span class="nx">a</span><span class="p">]</span><span class="o">=</span><span class="p">{</span><span class="na">exports</span><span class="p">:{},</span><span class="na">id</span><span class="p">:</span><span class="nx">a</span><span class="p">,</span><span class="na">loaded</span><span class="p">:</span><span class="o">!</span><span class="mi">1</span><span class="p">};</span><span class="k">return</span> <span class="nx">e</span><span class="p">[</span><span class="nx">a</span><span class="p">].</span><span class="nx">call</span><span class="p">(</span><span class="nx">n</span><span class="p">.</span><span class="nx">exports</span><span class="p">,</span><span class="nx">n</span><span class="p">,</span><span class="nx">n</span><span class="p">.</span><span class="nx">exports</span><span class="p">,</span><span class="nx">t</span><span class="p">),</span><span class="nx">n</span><span class="p">.</span><span class="nx">loaded</span><span class="o">=!</span><span class="mi">0</span><span class="p">,</span><span class="nx">n</span><span class="p">.</span><span class="nx">exports</span><span class="p">}</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="p">{};</span><span class="k">return</span> <span class="nx">t</span><span class="p">.</span><span class="nx">m</span><span class="o">=</span><span class="nx">e</span><span class="p">,</span><span class="nx">t</span><span class="p">.</span><span class="nx">c</span><span class="o">=</span><span class="nx">i</span><span class="p">,</span><span class="nx">t</span><span class="p">.</span><span class="nx">p</span><span class="o">=</span><span class="dl">""</span><span class="p">,</span><span class="nx">t</span><span class="p">(</span><span class="mi">0</span><span class="p">)}([</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">,</span><span class="nx">t</span><span class="p">){</span><span class="dl">"</span><span class="s2">use strict</span><span class="dl">"</span><span class="p">;</span><span class="nb">Object</span><span class="p">.</span><span class="nx">defineProperty</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="dl">"</span><span class="s2">__esModule</span><span class="dl">"</span><span class="p">,{</span><span class="na">value</span><span class="p">:</span><span class="o">!</span><span class="mi">0</span><span class="p">});</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="nb">window</span><span class="p">;</span><span class="nx">t</span><span class="p">[</span><span class="dl">"</span><span class="s2">default</span><span class="dl">"</span><span class="p">]</span><span class="o">=</span><span class="nx">i</span><span class="p">.</span><span class="nx">flex</span><span class="o">=</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">,</span><span class="nx">t</span><span class="p">){</span><span class="kd">var</span> <span class="nx">a</span><span class="o">=</span><span class="nx">e</span><span class="o">||</span><span class="mi">100</span><span class="p">,</span><span class="nx">n</span><span class="o">=</span><span class="nx">t</span><span class="o">||</span><span class="mi">1</span><span class="p">,</span><span class="nx">r</span><span class="o">=</span><span class="nx">i</span><span class="p">.</span><span class="nb">document</span><span class="p">,</span><span class="nx">o</span><span class="o">=</span><span class="nb">navigator</span><span class="p">.</span><span class="nx">userAgent</span><span class="p">,</span><span class="nx">d</span><span class="o">=</span><span class="nx">o</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/Android</span><span class="se">[\S\s]</span><span class="sr">+AppleWebkit</span><span class="se">\/(\d{3})</span><span class="sr">/i</span><span class="p">),</span><span class="nx">l</span><span class="o">=</span><span class="nx">o</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/U3</span><span class="se">\/((\d</span><span class="sr">+|</span><span class="se">\.){5,})</span><span class="sr">/i</span><span class="p">),</span><span class="nx">c</span><span class="o">=</span><span class="nx">l</span><span class="o">&amp;&amp;</span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">l</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nx">split</span><span class="p">(</span><span class="dl">"</span><span class="s2">.</span><span class="dl">"</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="dl">""</span><span class="p">),</span><span class="mi">10</span><span class="p">)</span><span class="o">&gt;=</span><span class="mi">80</span><span class="p">,</span><span class="nx">p</span><span class="o">=</span><span class="nb">navigator</span><span class="p">.</span><span class="nx">appVersion</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/</span><span class="se">(</span><span class="sr">iphone|ipad|ipod</span><span class="se">)</span><span class="sr">/gi</span><span class="p">),</span><span class="nx">s</span><span class="o">=</span><span class="nx">i</span><span class="p">.</span><span class="nx">devicePixelRatio</span><span class="o">||</span><span class="mi">1</span><span class="p">;</span><span class="nx">p</span><span class="o">||</span><span class="nx">d</span><span class="o">&amp;&amp;</span><span class="nx">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">534</span><span class="o">||</span><span class="nx">c</span><span class="o">||</span><span class="p">(</span><span class="nx">s</span><span class="o">=</span><span class="mi">1</span><span class="p">);</span><span class="kd">var</span> <span class="nx">u</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="nx">s</span><span class="p">,</span><span class="nx">m</span><span class="o">=</span><span class="nx">r</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="dl">'</span><span class="s1">meta[name="viewport"]</span><span class="dl">'</span><span class="p">);</span><span class="nx">m</span><span class="o">||</span><span class="p">(</span><span class="nx">m</span><span class="o">=</span><span class="nx">r</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="dl">"</span><span class="s2">meta</span><span class="dl">"</span><span class="p">),</span><span class="nx">m</span><span class="p">.</span><span class="nx">setAttribute</span><span class="p">(</span><span class="dl">"</span><span class="s2">name</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="s2">viewport</span><span class="dl">"</span><span class="p">),</span><span class="nx">r</span><span class="p">.</span><span class="nx">head</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">m</span><span class="p">)),</span><span class="nx">m</span><span class="p">.</span><span class="nx">setAttribute</span><span class="p">(</span><span class="dl">"</span><span class="s2">content</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="s2">width=device-width,user-scalable=no,initial-scale=</span><span class="dl">"</span><span class="o">+</span><span class="nx">u</span><span class="o">+</span><span class="dl">"</span><span class="s2">,maximum-scale=</span><span class="dl">"</span><span class="o">+</span><span class="nx">u</span><span class="o">+</span><span class="dl">"</span><span class="s2">,minimum-scale=</span><span class="dl">"</span><span class="o">+</span><span class="nx">u</span><span class="p">),</span><span class="nx">r</span><span class="p">.</span><span class="nx">documentElement</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">fontSize</span><span class="o">=</span><span class="nx">a</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="nx">s</span><span class="o">*</span><span class="nx">n</span><span class="o">+</span><span class="dl">"</span><span class="s2">px</span><span class="dl">"</span><span class="p">},</span><span class="nx">e</span><span class="p">.</span><span class="nx">exports</span><span class="o">=</span><span class="nx">t</span><span class="p">[</span><span class="dl">"</span><span class="s2">default</span><span class="dl">"</span><span class="p">]}]);</span> <span class="nx">flex</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>优点：<br />
+根据设备屏幕的DPR,自动设置最合适的高清缩放。
+保证了不同设备下视觉体验的一致性。（上个方案是，屏幕越大元素越大；此方案是，屏幕越大，看的越多）<br />
+缺点：<br />
+因为屏幕越大，看的越多，所以在示例网站上，不能做到在所有的分辨率上都保持一致的样式
+<img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/e4a546fdc2e1408fb03fa2eba2fdf074~tplv-k3u1fbpfcp-watermark.image" alt="" />
+<img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/88d79c5d596a42a1858ee3e0504ed1a3~tplv-k3u1fbpfcp-watermark.image" alt="" /></p>
+<blockquote>
+  <p>上述方案的样式根据设计稿测量的数据，除以100，加上rem，即1rem=100px</p>
+</blockquote>
+
+<h3 id="vwvh">vw，vh</h3>
+
+<p>vw：视窗宽度，1vw等于视窗宽度的1%。<br />
+<em>常用于wap端适配屏幕宽度</em><br />
+vh：视窗高度，1vh等于视窗高度的1%。<br />
+<em>常用于pc端的全屏展示</em></p>
+
+<h2 id="微信调整字体">微信调整字体</h2>
+
+<ol>
+  <li>原理<br />
+手机在系统设置和微信设置的通用设置中都提供放大字体功能，这两种设置都可以系统中字体和应用中字体的大小。<br />
+改变font-size，不仅仅是根元素的font-size，所有font-size都会受到影响</li>
+  <li>解决方案
+    <ul>
+      <li>禁止调整浏览器字体大小行为</li>
+    </ul>
+    <ul>
+      <li>
+        <p>iOS系统<br />
+   body设置-webkit-text-size-adjust属性禁止调整字体大小</p>
+
+        <div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>   <span class="nt">body</span> <span class="p">{</span>
+     <span class="nl">-webkit-text-size-adjust</span><span class="p">:</span> <span class="m">100%</span> <span class="cp">!important</span><span class="p">;</span>
+     <span class="py">text-size-adjust</span><span class="p">:</span> <span class="m">100%</span> <span class="cp">!important</span><span class="p">;</span>
+     <span class="nl">-moz-text-size-adjust</span><span class="p">:</span> <span class="m">100%</span> <span class="cp">!important</span><span class="p">;</span>
+   <span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div>        </div>
+      </li>
+      <li>
+        <p>Android系统 <br />
+ 调整浏览器字体是通过改变字体大小,所以可以考虑将字体大小在设置的时候进行等比例缩小。
+ 例如，一个文字希望以10px来进行渲染，当浏览器字体被放大两倍时，此时font-size会变为20px。 <br />
+ 因此我们可以在取到这个放大比例之后，对原样式进行等比缩小，比如将原文字大小设置为5px，渲染的时候就变成了10px。 <br />
+ <strong>做这种处理时注意页面中使用rem为单位。</strong></p>
+
+        <div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre> <span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+ <span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+ <span class="kd">var</span> <span class="nx">$dom</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="dl">'</span><span class="s1">div</span><span class="dl">'</span><span class="p">);</span>
+ <span class="nx">$dom</span><span class="p">.</span><span class="nx">style</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">font-size:10px;</span><span class="dl">'</span><span class="p">;</span>
+ <span class="nb">document</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">$dom</span><span class="p">);</span>
+ <span class="c1">// 计算出放大后的字体</span>
+ <span class="kd">var</span> <span class="nx">scaledFontSize</span> <span class="o">=</span> <span class="nb">parseInt</span><span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">getComputedStyle</span><span class="p">(</span><span class="nx">$dom</span><span class="p">,</span> <span class="kc">null</span><span class="p">).</span><span class="nx">getPropertyValue</span><span class="p">(</span><span class="dl">'</span><span class="s1">font-size</span><span class="dl">'</span><span class="p">));</span>
+ <span class="nb">document</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">removeChild</span><span class="p">(</span><span class="nx">$dom</span><span class="p">);</span>
+ <span class="c1">// 计算原字体和放大后字体的比例</span>
+ <span class="kd">var</span> <span class="nx">scaleFactor</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">/</span> <span class="nx">scaledFontSize</span><span class="p">;</span>
+ <span class="kd">var</span> <span class="nx">originRootFontSize</span> <span class="o">=</span> <span class="nb">parseInt</span><span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">getComputedStyle</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">documentElement</span><span class="p">,</span> <span class="kc">null</span><span class="p">).</span><span class="nx">getPropertyValue</span><span class="p">(</span><span class="dl">'</span><span class="s1">font-size</span><span class="dl">'</span><span class="p">));</span>
+ <span class="nb">document</span><span class="p">.</span><span class="nx">documentElement</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">fontSize</span> <span class="o">=</span> <span class="nx">originRootFontSize</span> <span class="o">*</span> <span class="nx">scaleFactor</span> <span class="o">*</span> <span class="nx">scaleFactor</span> <span class="o">+</span> <span class="dl">'</span><span class="s1">px</span><span class="dl">'</span><span class="p">;</span>
+ <span class="p">})();</span>
+ <span class="o">&lt;</span><span class="sr">/script</span><span class="err">&gt;
+</span></pre></td></tr></tbody></table></code></pre></div>        </div>
+
+        <blockquote>
+          <p>注意：如果页面中使用了rem为单位，改变根元素的font-size</p>
+        </blockquote>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<p>优点:<br />
+(1)这种方式可以完全还原页面原本的布局样式。<br />
+(2)实现简单，只需在页面上加一段css,一段JavaScript。</p>
+
+<p>缺点：<br />
+(1)因为通过代码执行完成可能造成页面闪烁，这个问题可以通过提前执行这段代码或者做加载完成前页面暂时不展示解决。<br />
+(2)这种方式对那些真正需要放大浏览器字体的用户并不友好。</p>
+
+<ul>
+  <li>改变布局适应适应这种调整浏览器字体大小行为
+优点：<br />
+(1) 不许额外执行JavaScript代码。<br />
+(2)用户可以选择调整浏览器字体,对于有这种需求的用户友好，目前像京东淘宝的移动web端都是使用这种方式。<br />
+缺点：<br />
+(1) 即使通过改变布局该应对变化，但是还是会出现布局错位的情况。<br />
+(2) 实现起来较为复杂，需要在开发时一直考虑这个问题。
+    <blockquote>
+      <p>注意：如果样式都用的rem计算，那么，每次重置时用js使得根元素的字体大小不变。</p>
+    </blockquote>
+  </li>
+</ul>
+
+<ol>
+  <li>px是否受到影响<br />
+对于元素宽高来说，因为rem是根据根元素的font-size来计算的，如果不使用rem计算宽高，那么只要不使用rem，图片的宽高将不受影响。<br />
+对于字体来说，只要设置了font-size，使用px一样会影响到字体大小。</li>
+  <li>实际中的解决办法
+    <blockquote>
+      <p>示例：在手机端调整字体之后，头部的图片会挤占位置，造成样式错乱，热区也会定位不准</p>
+    </blockquote>
+  </li>
+</ol>
+
+<p><img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f3fbdf8583b04902a72969acb2c1ea74~tplv-k3u1fbpfcp-watermark.image" alt="" />
+<img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/48355f0d0938481798f0c033c5f8c499~tplv-k3u1fbpfcp-watermark.image" alt="" /></p>
+
+<p><strong>遇到的问题及解决方案</strong></p>
+<ul>
+  <li>浏览器和微信的缓存无法清除，导致样式修改之后没有效果</li>
+  <li>元素宽高、热区是根据rem计算，如果调整字体大小，那么这些样式和位置都要改变
+解决办法：<br />
+(1)更改样式之后，刷新，清空缓存<br />
+(2)元素宽高依赖于rem，全局修改为vw的工作量大，所以仅将图片宽高做max-限制
+    <blockquote>
+      <p>注意：热区需要重新计算，改用vw计算，不过有个问题需要注意，js的计算精度问题，详见https://wiki.trscd.com.cn/pages/viewpage.action?pageId=38372818</p>
+    </blockquote>
+  </li>
+</ul>
+
+
+                <hr style="visibility: hidden;">
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2020/05/08/naming/" data-toggle="tooltip" data-placement="top" title="命名规范">
+                        Previous<br>
+                        <span>命名规范</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2020/10/27/mac-install-jekyll/" data-toggle="tooltip" data-placement="top" title="macOS 安装jekyll">
+                        Next<br>
+                        <span>macOS 安装jekyll</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+                <hr style="visibility: hidden;">
+
+                
+                <!-- disqus 评论框 start -->
+                <div class="comment">
+                    <div id="disqus_thread" class="disqus-thread"></div>
+                </div>
+                <!-- disqus 评论框 end -->
+                
+
+                
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">目录</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+
+
+<section>
+    
+        <hr class="hidden-sm hidden-xs">
+    
+    <h5><a href="/archive/">FEATURED TAGS</a></h5>
+    <div class="tags">
+        
+        
+        
+        </a>
+        
+        
+                <a data-sort="0009" 
+                    href="/archive/?tag=CSS"
+                    title="CSS"
+                    rel="2">CSS</a>
+        
+                <a data-sort="0005" 
+                    href="/archive/?tag=%E5%89%8D%E7%AB%AF"
+                    title="前端"
+                    rel="6">前端</a>
+        
+                <a data-sort="0009" 
+                    href="/archive/?tag=jekyll"
+                    title="jekyll"
+                    rel="2">jekyll</a>
+        
+                <a data-sort="0009" 
+                    href="/archive/?tag=mac"
+                    title="mac"
+                    rel="2">mac
+    </div>
+</section>
+
+
+                <!-- Friends Blog -->
+                
+<hr>
+<h5>FRIENDS</h5>
+<ul class="list-inline">
+  
+  <li><a href="https://github.com/qianyuEric/qianyuEric.github.io">qianyuEric</a></li>
+  
+</ul>
+
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- add support for mathjax by voleking-->
+
+
+
+
+
+
+<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "hux";
+    var disqus_identifier = "/2020/10/22/wap-auto";
+    var disqus_url = "http://localhost:4000/2020/10/22/wap-auto/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus 公共JS代码 end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'hover',
+          placement: 'right',
+          // icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- SNS Link -->
+                
+
+
+<ul class="list-inline text-center">
+
+
+  
+  
+  
+  
+  
+  
+  <li>
+    <a target="_blank" href="https://github.com/nanaLinShero">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+</ul>
+
+                <p class="copyright text-muted">
+                    Copyright &copy; nanaLin Blog 2020
+                    <br>
+                    Powered by <a href="https://github.com/nanaLinShero/nanaLinShero.github.io.git">nanaLin Blog</a>
+                    <!-- <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=huxpro&repo=huxpro.github.io&type=star&count=true" >
+                    </iframe> -->
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<!-- Currently, only navbar scroll-down effect at desktop still depends on this -->
+<script src="/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+<!-- Service Worker -->
+
+<script src="/js/snackbar.js "></script>
+<script src="/js/sw-registration.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!--
+     Because of the native support for backtick-style fenced code blocks
+     right within the Markdown is landed in Github Pages,
+     From V1.6, There is no need for Highlight.js,
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+
+
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-49627206-1';
+    var _gaDomain = '';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function dealCatalog(els) {
+        let arr = Array.from(els).map(i => ({
+            id: $(i).prop('id'),
+            tagName: $(i).prop('tagName').toLowerCase(),
+            text: $(i).text()
+        }));
+        return arr.reduce((pre, cur, index) => {
+            if(index) {
+                let prevItem = arr[index - 1], pName = prevItem.tagName, cName = cur.tagName;
+                if(pName === cName) {
+                    if(prevItem.hasOwnProperty('parentIndex')) {
+                        let pIndex = prevItem.parentIndex;
+                        cur.parentIndex = pIndex;
+                        arr[pIndex].hasOwnProperty('child') ? arr[pIndex].child.push(cur) : (arr[pIndex].child = [cur]);
+                    } else {
+                        pre.push(cur);
+                    }
+                } else if(Number(pName[1]) < Number(cName[1])) {
+                    cur.parentIndex = index - 1;
+                    prevItem.child = [cur];
+                } else {
+                    let item = arr.find(i => i.tagName === cur.tagName );
+                    if(item.hasOwnProperty('parentIndex')) {
+                        arr[item.parentIndex].child.push(cur);
+                    } else {
+                        pre.push(cur);
+                    }
+                }
+            } else {
+                pre.push(cur);
+            }
+            return pre;
+        }, [])
+    }
+
+    function generateCatalog (selector) {
+
+        // interop with multilangual 
+        if ('' == 'true') {
+            _containerSelector = 'div.post-container.active'
+        } else {
+            _containerSelector = 'div.post-container'
+        }
+
+        // init
+        var P = $(_containerSelector),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+
+        // clean
+        $(selector).html('')
+
+        // appending
+        // a.each(function () {
+        //     n = $(this).prop('tagName').toLowerCase();
+        //     i = "#"+$(this).prop('id');
+        //     t = $(this).text();
+        //     c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+        //     l = $('<li class="'+n+'_nav"></li>').append(c);
+        //     $(selector).append(l);
+        // });
+
+        a = dealCatalog(P.find('h1,h2,h3,h4,h5,h6'));
+        a.forEach(i => {
+            $(selector).append(creatElement(i));
+        })
+
+        return true;
+    }
+
+    function creatElement(el) {
+        if(el.child && el.child.length) {
+            let icon = $('<i class="icon"></i>');
+            let c = $('<a href="#'+el.id+'" rel="nofollow">'+el.text+'</a>');
+            let l = $('<li class="'+el.tagName+'_nav p_nav"></li>').append(icon).append(c);
+            let u = $('<ul class="cata-list"></ul>');
+            el.child.forEach(li => {
+                u.append(creatElement(li));
+            })
+            l.append(u);
+            return l;
+        } else {
+            let c = $('<a href="#'+el.id+'" rel="nofollow">'+el.text+'</a>');
+            let l = $('<li class="'+el.tagName+'_nav"></li>').append(c);
+            return l;
+        }
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    $(".p_nav .icon").click((function(e){
+        e.preventDefault();
+        $(this).toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+<!-- Multi-Lingual -->
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>
